@@ -3,7 +3,21 @@ uuid = "c84fd5fb-d7aa-44f3-b269-334b738114ca"
 authors = ["Seth Axen <seth@sethaxen.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+AdvancedHMC = "0bf59076-c3b1-5ca4-86bd-e02cd72cde3d"
+DynamicHMC = "bbc10e6e-7c05-544b-b16e-64fede858acb"
+Pathfinder = "b1d3bc72-d0e7-4279-b92f-7fa5d6d2d454"
+PosteriorDB = "1c4bc282-d2f5-44f9-b6d1-8c4424a23ad4"
+StanSample = "c1514b29-d3a0-5178-b312-660c88baa699"
+Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
+
 [compat]
+AdvancedHMC = "0.4"
+DynamicHMC = "3"
+Pathfinder = "0.5"
+PosteriorDB = "0.3"
+StanSample = "7"
+Turing = "0.23"
 julia = "1"
 
 [extras]
