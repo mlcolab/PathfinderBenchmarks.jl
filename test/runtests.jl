@@ -2,5 +2,6 @@ using PathfinderPoster
 using Test
 
 @testset "PathfinderPoster.jl" begin
-    # Write your tests here.
+    include("test_utils.jl")
+    include("diagnostics.jl")
 end

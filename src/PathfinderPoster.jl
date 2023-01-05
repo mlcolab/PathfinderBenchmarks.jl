@@ -1,5 +1,10 @@
 module PathfinderPoster
 
-# Write your package code here.
+using LinearAlgebra: LinearAlgebra
+using KrylovKit: KrylovKit
+
+include("diagnostics.jl")
+
+export pdcond
 
 end
