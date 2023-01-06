@@ -6,6 +6,11 @@ on:
     tags: '*'
   pull_request:
 
+env:
+  CMDSTAN_VERSION: "2.25.0"
+  BRIDGESTAN_VERSION: "1.0.0"
+  CMDSTAN_PATH: "${{ GITHUB.WORKSPACE }}/.cmdstan/"
+
 concurrency:
   # Skip intermediate builds: always.
   # Cancel intermediate builds: only if it is a pull request build.
@@ -31,8 +36,28 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v1
+      - name: Cache CmdStan
+        id: cache-cmdstan
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.CMDSTAN_PATH }}
+          key: cmdstan-${{ env.CMDSTAN_VERSION }}-${{ runner.os }}
+      - name: Download and build CmdStan
+        if: steps.cache-cmdstan.outputs.cache-hit != 'true'
+        run: |
+          wget -P ${{ env.CMDSTAN_PATH }} https://github.com/stan-dev/cmdstan/releases/download/v${{ env.CMDSTAN_VERSION }}/cmdstan-${{ env.CMDSTAN_VERSION }}.tar.gz
+          tar -xzpf ${{ env.CMDSTAN_PATH }}/cmdstan-${{ env.CMDSTAN_VERSION }}.tar.gz -C ${{ env.CMDSTAN_PATH }}
+          make -C ${{ env.CMDSTAN_PATH }}/cmdstan-${{ env.CMDSTAN_VERSION }}/ build
+      - name: Download BridgeStan
+        if: steps.cache-cmdstan.outputs.cache-hit != 'true'
+        run: |
+          wget -P ${{ env.CMDSTAN_PATH }} https://github.com/roualdes/bridgestan/releases/download/v${{ env.BRIDGESTAN_VERSION }}/bridgestan-${{ env.BRIDGESTAN_VERSION }}.tar.gz
+          tar -xzpf ${{ env.CMDSTAN_PATH }}/bridgestan-${{ env.BRIDGESTAN_VERSION }}.tar.gz -C ${{ env.CMDSTAN_PATH }}
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
+        env:
+          CMDSTAN: ${{ env.CMDSTAN_PATH }}/cmdstan-${{ env.CMDSTAN_VERSION }}/
+          BRIDGESTAN: ${{ env.CMDSTAN_PATH }}/bridgestan-${{ env.BRIDGESTAN_VERSION }}/
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v2
         with:
