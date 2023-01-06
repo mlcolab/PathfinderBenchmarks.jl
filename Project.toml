@@ -21,6 +21,7 @@ ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 [compat]
 AdvancedHMC = "0.4"
 DynamicHMC = "3"
+JSON = "0.21"
 KrylovKit = "0.6"
 LogDensityProblems = "2"
 Optim = "1"
@@ -33,8 +34,9 @@ ZipFile = "0.10"
 julia = "1.6"
 
 [extras]
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Random", "Test"]
+test = ["JSON", "Random", "Test"]
