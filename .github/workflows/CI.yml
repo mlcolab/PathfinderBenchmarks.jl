@@ -10,8 +10,8 @@ env:
   CMDSTAN_VERSION: "2.25.0"
   BRIDGESTAN_VERSION: "1.0.0"
   CMDSTAN_PATH: "${{ GITHUB.WORKSPACE }}/.cmdstan/"
-  CMDSTAN: "${{ CMDSTAN_PATH }}/cmdstan-${{ CMDSTAN_VERSION }}/"
-  BRIDGESTAN: "${{ CMDSTAN_PATH }}/bridgestan-${{ BRIDGESTAN_VERSION }}/"
+  CMDSTAN: ${{ env.CMDSTAN_PATH }}/cmdstan-${{ env.CMDSTAN_VERSION }}/
+  BRIDGESTAN: ${{ env.CMDSTAN_PATH }}/bridgestan-${{ env.BRIDGESTAN_VERSION }}/
 
 concurrency:
   # Skip intermediate builds: always.
