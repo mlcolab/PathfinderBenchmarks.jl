@@ -5,7 +5,10 @@ version = "0.1.0"
 
 [deps]
 AdvancedHMC = "0bf59076-c3b1-5ca4-86bd-e02cd72cde3d"
+DimensionalData = "0703355e-b756-11e9-17c0-8b28908087d0"
 DynamicHMC = "bbc10e6e-7c05-544b-b16e-64fede858acb"
+Folds = "41a02a25-b8f0-4f67-bc48-60067656b558"
+InferenceObjects = "b5cf5a8d-e756-4ee3-b014-01d49d192c00"
 KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 LogDensityProblems = "6fdf6af0-433a-55f7-b3ed-c6c6e0b8df7c"
@@ -20,7 +23,10 @@ ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 
 [compat]
 AdvancedHMC = "0.4"
+DimensionalData = "0.24"
 DynamicHMC = "3"
+Folds = "0.2"
+InferenceObjects = "0.3"
 JSON = "0.21"
 KrylovKit = "0.6"
 LogDensityProblems = "2"
