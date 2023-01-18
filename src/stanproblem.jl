@@ -6,22 +6,16 @@ A struct representating a Stan model and implementing the LogDensityProblems int
 `stan_file` is a path to a `.stan` file containing a model definition, while `data` is
 either a path to a `.json` file containing data or a string containing data in JSON format.
 
-The struct has the additional fields:
-- `num_evals`: the number of times the log-density has been evaluated
-- `num_grad_evals`: the number of times the gradient of the log-density has been evaluated
-
     StanProblem(post::PosteriorDB.Posterior)
 
 Construct a `StanProblem` from the metadata in a `PosteriorDB.Posterior` object.
 """
-mutable struct StanProblem{T}
-    const model::T
-    num_evals::Int
-    num_grad_evals::Int
+struct StanProblem{T}
+    model::T
 end
 function StanProblem(stan_file::String, data::String)
     model = StanSample.BS.StanModel(; stan_file, data)
-    return StanProblem(model, 0, 0)
+    return StanProblem(model)
 end
 function StanProblem(post::PosteriorDB.Posterior)
     model = PosteriorDB.model(post)
@@ -52,7 +46,6 @@ function LogDensityProblems.logdensity(prob::StanProblem, x)
     catch
         NaN
     end
-    prob.num_evals += 1
     return lp::Float64
 end
 
@@ -63,6 +56,9 @@ function LogDensityProblems.logdensity_and_gradient(prob::StanProblem, x)
     catch
         NaN, fill(NaN, length(x))
     end
-    prob.num_grad_evals += 1
     return lp_grad::Tuple{Float64,Vector{Float64}}
+end
+
+function constrain(prob::StanProblem, x::AbstractVector)
+    return StanSample.BS.param_constrain(prob.model, x)
 end

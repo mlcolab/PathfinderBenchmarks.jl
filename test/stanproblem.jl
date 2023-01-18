@@ -38,8 +38,6 @@ model {
             prob = StanProblem(stan_file, data_json)
             @test prob isa StanProblem
             @test prob.model isa StanSample.BS.StanModel
-            @test prob.num_evals == 0
-            @test prob.num_grad_evals == 0
             @test sprint(show, "text/plain", prob) == "StanProblem: mymodel_model"
 
             @test LogDensityProblems.dimension(prob) == 3
@@ -48,27 +46,20 @@ model {
             θ = randn(3)
             lp = @inferred LogDensityProblems.logdensity(prob, θ)
             @test lp isa Float64
-            @test prob.num_evals == 1
-            @test prob.num_grad_evals == 0
 
             lp = @inferred LogDensityProblems.logdensity(prob, fill(NaN, 3))
             @test isnan(lp)
-            @test prob.num_evals == 2
 
             θ = randn(3)
             lp, grad = @inferred LogDensityProblems.logdensity_and_gradient(prob, θ)
             @test lp isa Float64
             @test grad isa Vector{Float64}
-            @test prob.num_evals == 2
-            @test prob.num_grad_evals == 1
 
             lp, grad = @inferred LogDensityProblems.logdensity_and_gradient(
                 prob, fill(NaN, 3)
             )
             @test isnan(lp)
             @test all(isnan, grad)
-            @test prob.num_evals == 2
-            @test prob.num_grad_evals == 2
         end
     end
 
@@ -77,8 +68,6 @@ model {
         prob = StanProblem(post)
         @test prob isa StanProblem
         @test prob.model isa StanSample.BS.StanModel
-        @test prob.num_evals == 0
-        @test prob.num_grad_evals == 0
         θ = randn(LogDensityProblems.dimension(prob))
         LogDensityProblems.logdensity(prob, θ)
         LogDensityProblems.logdensity_and_gradient(prob, θ)
