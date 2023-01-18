@@ -1,7 +1,7 @@
-using PathfinderPoster
+using PathfinderBenchmarks
 using Test
 
-@testset "PathfinderPoster.jl" begin
+@testset "PathfinderBenchmarks.jl" begin
     include("test_utils.jl")
     include("diagnostics.jl")
     include("stanproblem.jl")

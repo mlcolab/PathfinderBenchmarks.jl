@@ -1,4 +1,4 @@
-using PathfinderPoster
+using PathfinderBenchmarks
 using Test
 using JSON
 using LogDensityProblems

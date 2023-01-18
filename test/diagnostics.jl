@@ -1,4 +1,4 @@
-using PathfinderPoster
+using PathfinderBenchmarks
 using Test
 using Pathfinder
 using KrylovKit
@@ -11,7 +11,7 @@ Random.seed!(0)
         m = 10
         @testset "T=$T, n=$n" for T in (Float32, Float64), n in (5, 100)
             A = randn(T, n, n)
-            @test all(PathfinderPoster.svdvals_extreme(A) .≈ extrema(svdvals(A)))
+            @test all(PathfinderBenchmarks.svdvals_extreme(A) .≈ extrema(svdvals(A)))
         end
     end
 

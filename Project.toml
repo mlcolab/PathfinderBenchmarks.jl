@@ -1,4 +1,4 @@
-name = "PathfinderPoster"
+name = "PathfinderBenchmarks"
 uuid = "c84fd5fb-d7aa-44f3-b269-334b738114ca"
 authors = ["Seth Axen <seth@sethaxen.com> and contributors"]
 version = "0.1.0"

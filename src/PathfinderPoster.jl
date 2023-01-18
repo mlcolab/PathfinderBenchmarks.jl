@@ -1,4 +1,4 @@
-module PathfinderPoster
+module PathfinderBenchmarks
 
 using LinearAlgebra: LinearAlgebra
 using LogDensityProblems: LogDensityProblems
