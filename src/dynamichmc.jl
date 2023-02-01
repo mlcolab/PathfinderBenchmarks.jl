@@ -9,7 +9,7 @@ function _sample_dynamichmc(
     nchains;
     rng=Random.default_rng(),
     reporter=DynamicHMC.NoProgressReport(),
-    executor=Transducers.ThreadedEx(),
+    executor=Transducers.SequentialEx(),
     kwargs...,
 )
     trans = Transducers.Map() do seed
