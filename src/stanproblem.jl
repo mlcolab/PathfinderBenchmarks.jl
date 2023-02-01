@@ -20,10 +20,7 @@ end
 function StanProblem(post::PosteriorDB.Posterior)
     model = PosteriorDB.model(post)
     stan_file = PosteriorDB.path(PosteriorDB.implementation(model, "stan"))
-    # data is stored in a zipped JSON file, load as JSON string
-    r = ZipFile.Reader(PosteriorDB.path(PosteriorDB.dataset(post)))
-    data = read(only(r.files), String)
-    close(r)
+    data = PosteriorDB.load(PosteriorDB.dataset(post), String)
     return StanProblem(stan_file, data)
 end
 
