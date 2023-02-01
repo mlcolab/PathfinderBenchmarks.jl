@@ -1,5 +1,6 @@
 module PathfinderBenchmarks
 
+using BridgeStan: BridgeStan
 using DynamicHMC: DynamicHMC
 using DimensionalData: DimensionalData
 using Folds: Folds
@@ -10,7 +11,6 @@ using MCMCDiagnosticTools: MCMCDiagnosticTools
 using KrylovKit: KrylovKit
 using PosteriorDB: PosteriorDB
 using Random: Random
-using StanSample: StanSample
 using Transducers: Transducers
 using ZipFile: ZipFile
 

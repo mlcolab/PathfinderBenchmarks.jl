@@ -14,7 +14,7 @@ struct StanProblem{T}
     model::T
 end
 function StanProblem(stan_file::String, data::String)
-    model = StanSample.BS.StanModel(; stan_file, data)
+    model = BridgeStan.StanModel(; stan_file, data)
     return StanProblem(model)
 end
 function StanProblem(post::PosteriorDB.Posterior)
@@ -28,7 +28,7 @@ function StanProblem(post::PosteriorDB.Posterior)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", prob::StanProblem)
-    return print(io, "StanProblem: $(StanSample.BS.name(prob.model))")
+    return print(io, "StanProblem: $(BridgeStan.name(prob.model))")
 end
 
 function LogDensityProblems.capabilities(::Type{<:StanProblem})
@@ -36,13 +36,13 @@ function LogDensityProblems.capabilities(::Type{<:StanProblem})
 end
 
 function LogDensityProblems.dimension(prob::StanProblem)
-    return Int(StanSample.BS.param_unc_num(prob.model))
+    return Int(BridgeStan.param_unc_num(prob.model))
 end
 
 function LogDensityProblems.logdensity(prob::StanProblem, x)
     model = prob.model
     lp = try
-        StanSample.BS.log_density(model, convert(Vector{Float64}, x))
+        BridgeStan.log_density(model, convert(Vector{Float64}, x))
     catch
         NaN
     end
@@ -52,7 +52,7 @@ end
 function LogDensityProblems.logdensity_and_gradient(prob::StanProblem, x)
     m = prob.model
     lp_grad = try
-        StanSample.BS.log_density_gradient(m, convert(Vector{Float64}, x))
+        BridgeStan.log_density_gradient(m, convert(Vector{Float64}, x))
     catch
         NaN, fill(NaN, length(x))
     end
@@ -60,5 +60,5 @@ function LogDensityProblems.logdensity_and_gradient(prob::StanProblem, x)
 end
 
 function constrain(prob::StanProblem, x::AbstractVector)
-    return StanSample.BS.param_constrain(prob.model, x)
+    return BridgeStan.param_constrain(prob.model, x)
 end
