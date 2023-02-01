@@ -1,9 +1,9 @@
 using PathfinderBenchmarks
 using Test
+using BridgeStan
 using JSON
 using LogDensityProblems
 using PosteriorDB
-using StanSample
 
 regression_model_code = """
 data {
@@ -22,10 +22,6 @@ model {
 """
 
 @testset "StanProblem" begin
-    if !isdefined(StanSample, :BS)
-        @warn "BridgeStan not installed, skipping StanProblem tests"
-        return nothing
-    end
     @testset "StanProblem(stan_file, data)" begin
         mktempdir() do path
             stan_file = joinpath(path, "mymodel.stan")
@@ -37,7 +33,7 @@ model {
             data_json = JSON.json(data)
             prob = StanProblem(stan_file, data_json)
             @test prob isa StanProblem
-            @test prob.model isa StanSample.BS.StanModel
+            @test prob.model isa BridgeStan.StanModel
             @test sprint(show, "text/plain", prob) == "StanProblem: mymodel_model"
 
             @test LogDensityProblems.dimension(prob) == 3
@@ -67,7 +63,7 @@ model {
         post = PosteriorDB.posterior(PosteriorDB.database(), "dogs-dogs")
         prob = StanProblem(post)
         @test prob isa StanProblem
-        @test prob.model isa StanSample.BS.StanModel
+        @test prob.model isa BridgeStan.StanModel
         θ = randn(LogDensityProblems.dimension(prob))
         LogDensityProblems.logdensity(prob, θ)
         LogDensityProblems.logdensity_and_gradient(prob, θ)

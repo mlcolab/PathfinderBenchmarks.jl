@@ -24,7 +24,7 @@ ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 
 [compat]
 AdvancedHMC = "0.4"
-BridgeStan = "0.1.1"
+BridgeStan = "1"
 DimensionalData = "0.24"
 DynamicHMC = "3"
 Folds = "0.2"
