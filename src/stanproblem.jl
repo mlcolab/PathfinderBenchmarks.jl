@@ -1,20 +1,25 @@
 """
-    StanProblem(stan_file::String, data::String)
+    StanProblem(model::BridgeStan.StanModel)
+    StanProblem(stan_file::String, data::String; kwargs...)
 
 A struct representating a Stan model and implementing the LogDensityProblems interface.
 
 `stan_file` is a path to a `.stan` file containing a model definition, while `data` is
 either a path to a `.json` file containing data or a string containing data in JSON format.
 
+`kwargs` are forwarded to `BridgeStan.StanModel`.
+
     StanProblem(post::PosteriorDB.Posterior)
 
 Construct a `StanProblem` from the metadata in a `PosteriorDB.Posterior` object.
 """
-struct StanProblem{T}
+struct StanProblem{T<:BridgeStan.StanModel}
     model::T
 end
-function StanProblem(stan_file::String, data::String)
-    model = BridgeStan.StanModel(; stan_file, data)
+function StanProblem(
+    stan_file::String, data::String; make_args=["STAN_THREADS=true"], kwargs...
+)
+    model = BridgeStan.StanModel(; stan_file, data, make_args, kwargs...)
     return StanProblem(model)
 end
 function StanProblem(post::PosteriorDB.Posterior)
