@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.19
+# v0.19.20
 
 using Markdown
 using InteractiveUtils
@@ -33,13 +33,7 @@ idata = let
 end
 
 # ╔═╡ c8ddbce9-01d2-4b19-a836-f8b7dbe83fac
-result2 = let
-    prob = StanProblem(post)
-    logp(x) = LogDensityProblems.logdensity(prob, x)
-    ∇logp(x) = LogDensityProblems.logdensity_and_gradient(prob, x)[2]
-    dim = LogDensityProblems.dimension(prob)
-    pathfinder(logp, ∇logp; dim)
-end
+pathfinder(prob)
 
 # ╔═╡ Cell order:
 # ╠═3e5b016a-8c82-11ed-3cde-d313502f9be0
