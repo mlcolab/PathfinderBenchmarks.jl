@@ -1,4 +1,4 @@
-function sample_dynamichmc(prob::StanProblem, ndraws, nchains=4; kwargs...)
+function sample_dynamichmc(prob, ndraws, nchains=4; kwargs...)
     idata = _sample_dynamichmc(prob, ndraws, nchains; kwargs...)
     return idata
 end

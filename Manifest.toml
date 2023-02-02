@@ -2,7 +2,7 @@
 
 julia_version = "1.9.0-beta3"
 manifest_format = "2.0"
-project_hash = "6306a9bee6ac29d7054fe61d5295de93cb5d0276"
+project_hash = "21bebf2ccddf6dbbb3aa9dcfa1805a78ba17dfa7"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -991,6 +991,18 @@ deps = ["Setfield", "Test"]
 git-tree-sha1 = "e08a62abc517eb79667d0a29dc08a3b589516bb5"
 uuid = "171d559e-b47b-412a-8079-5efa626c420e"
 version = "0.1.15"
+
+[[deps.StanLogDensityProblems]]
+deps = ["BridgeStan", "LogDensityProblems", "Requires"]
+git-tree-sha1 = "815efa02d9733f3074d36e798dc380fdf49f5de9"
+repo-rev = "main"
+repo-url = "https://github.com/sethaxen/StanLogDensityProblems.jl"
+uuid = "a545de4d-8dba-46db-9d34-4e41d3f07807"
+version = "0.1.0"
+weakdeps = ["PosteriorDB"]
+
+    [deps.StanLogDensityProblems.extensions]
+    PosteriorDBExt = "PosteriorDB"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "Random", "StaticArraysCore", "Statistics"]
