@@ -10,16 +10,26 @@ function _sample_dynamichmc(
     rng=Random.default_rng(),
     reporter=DynamicHMC.NoProgressReport(),
     executor=Transducers.PreferParallel(),
+    ntries=100,
     kwargs...,
 )
     trans = Transducers.Map() do seed
         rng_chain = deepcopy(rng)
         Random.seed!(rng_chain, seed)
         count_prob = EvalCountingProblem(prob)
-        sample = DynamicHMC.mcmc_with_warmup(
-            rng_chain, count_prob, ndraws; reporter, kwargs...
-        )
-        return sample, count_prob.num_evals, count_prob.num_grad_evals
+        i = 0
+        while i < ntries
+            try
+                sample = DynamicHMC.mcmc_with_warmup(
+                    rng_chain, count_prob, ndraws; reporter, kwargs...
+                )
+                return sample, count_prob.num_evals, count_prob.num_grad_evals
+            catch
+                @warn "DynamicHMC failed to sample, trying again ($i/$ntries)"
+                i += 1
+            end
+        end
+        @error "DynamicHMC failed to sample after $ntries tries"
     end
     # generate seeds to be used for each chain. with TaskLocalRNG this isn't necessary, but
     # it does guarantee results are the same regardless of the `rng` or `executor` we use.
