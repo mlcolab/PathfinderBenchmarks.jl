@@ -10,7 +10,6 @@ using MCMCDiagnosticTools: MCMCDiagnosticTools
 using KrylovKit: KrylovKit
 using Random: Random
 using Transducers: Transducers
-using ZipFile: ZipFile
 
 include("diagnostics.jl")
 include("dynamichmc.jl")

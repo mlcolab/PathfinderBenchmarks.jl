@@ -4,7 +4,6 @@ authors = ["Seth Axen <seth@sethaxen.com> and contributors"]
 version = "0.1.0"
 
 [deps]
-AdvancedHMC = "0bf59076-c3b1-5ca4-86bd-e02cd72cde3d"
 BridgeStan = "c88b6f0a-829e-4b0b-94b7-f06ab5908f5a"
 DimensionalData = "0703355e-b756-11e9-17c0-8b28908087d0"
 DynamicHMC = "bbc10e6e-7c05-544b-b16e-64fede858acb"
@@ -15,18 +14,14 @@ KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 LogDensityProblems = "6fdf6af0-433a-55f7-b3ed-c6c6e0b8df7c"
 MCMCDiagnosticTools = "be115224-59cd-429b-ad48-344e309966f0"
-Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Pathfinder = "b1d3bc72-d0e7-4279-b92f-7fa5d6d2d454"
 PosteriorDB = "1c4bc282-d2f5-44f9-b6d1-8c4424a23ad4"
 ProgressLogging = "33c8b6b6-d38a-422a-b730-caa89a2f386c"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StanLogDensityProblems = "a545de4d-8dba-46db-9d34-4e41d3f07807"
 Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
-Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
-ZipFile = "a5390f91-8eb1-5f08-bee0-b1d1ffed6cea"
 
 [compat]
-AdvancedHMC = "0.4"
 BridgeStan = "1"
 DimensionalData = "0.24"
 DynamicHMC = "3"
@@ -36,14 +31,11 @@ JSON3 = "1"
 KrylovKit = "0.6"
 LogDensityProblems = "2"
 MCMCDiagnosticTools = "0.2.6"
-Optim = "1"
 Pathfinder = "0.7"
 PosteriorDB = "0.3.2"
 ProgressLogging = "0.1"
 StanLogDensityProblems = "0.1"
 Transducers = "0.4"
-Turing = "0.24"
-ZipFile = "0.10"
 julia = "1.8"
 
 [extras]
@@ -51,4 +43,4 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["JSON", "Random", "Test"]
+test = ["Random", "Test"]
