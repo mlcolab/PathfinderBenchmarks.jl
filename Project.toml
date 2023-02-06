@@ -42,7 +42,7 @@ PosteriorDB = "0.3.2"
 ProgressLogging = "0.1"
 StanLogDensityProblems = "0.1"
 Transducers = "0.4"
-Turing = "0.23"
+Turing = "0.24"
 ZipFile = "0.10"
 julia = "1.8"
 
