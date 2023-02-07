@@ -1,6 +1,19 @@
-# The following code is adapted to support alternative initializations of the inverse
+# The following code is included to support alternative initializations of the inverse
 # Hessian. See https://github.com/JuliaNLSolvers/Optim.jl/issues/955
 
+# eq 4.9
+# Gilbert, J.C., Lemaréchal, C. Some numerical experiments with variable-storage quasi-Newton algorithms.
+# Mathematical Programming 45, 407–435 (1989). https://doi.org/10.1007/BF01589113
+function gilbert_init!(α, s, y)
+    a = dot(y, Diagonal(α), y)
+    b = dot(y, s)
+    c = dot(s, inv(Diagonal(α)), s)
+    return @. α = b / (a / α + y^2 - (a / c) * (s / α)^2)
+end
+
+# Use the initial scaling guess from
+# Nocedal & Wright (2nd ed), Equation (7.20)
+nocedal_wright_init!(α, s, y) = fill!(α, dot(y, s) / sum(abs2, y))
 
 #! format: off
 
@@ -18,7 +31,8 @@ function twoloop!(s,
                   pseudo_iteration::Integer,
                   alpha,
                   q,
-                  scaleinvH0::Bool,
+                  invH0diag,
+                  init_invH0!,
                   precon)
     # Count number of parameters
     n = length(s)
@@ -42,23 +56,14 @@ function twoloop!(s,
     end
 
     # Copy q into s for forward pass
-    if scaleinvH0 == true && pseudo_iteration > 1
-        # Use the initial scaling guess from
-        # Nocedal & Wright (2nd ed), Equation (7.20)
-
-        #=
-        pseudo_iteration > 1 prevents this scaling from happening
-        at the first iteration, but also at the first step after
-        a reset due to invH being non-positive definite (pseudo_iteration = 1).
-        TODO: Maybe we can still use the scaling as long as iteration > 1?
-        =#
+    if init_invH0! !== nothing && pseudo_iteration > 1
         i = mod1(upper, m)
         dxi = dx_history[i]
         dgi = dg_history[i]
-        scaling = real(dot(dxi, dgi)) / sum(abs2, dgi)
-        @. s = scaling*q
+        init_invH0!(invH0diag, dxi, dgi)
+        s .= invH0diag .* q
     else
-        # apply preconditioner if scaleinvH0 is false as the true setting
+        # apply preconditioner if init_invH0! is nothing as the true setting
         # is essentially its own kind of preconditioning
         # (Note: preconditioner update was done outside of this function)
         Optim.ldiv!(s, precon, q)
@@ -81,14 +86,14 @@ function twoloop!(s,
     return
 end
 
-struct LBFGS{T, IL, L, Tprep} <: Optim.FirstOrderOptimizer
+struct LBFGS{T, IL, L, Tprep, IH} <: Optim.FirstOrderOptimizer
     m::Int
     alphaguess!::IL
     linesearch!::L
     P::T
     precondprep!::Tprep
     manifold::Optim.Manifold
-    scaleinvH0::Bool
+    init_invH0::IH
 end
 
 function LBFGS(; m::Integer = 10,
@@ -97,8 +102,8 @@ function LBFGS(; m::Integer = 10,
                  P=nothing,
                  precondprep = (P, x) -> nothing,
                  manifold::Optim.Manifold=Optim.Flat(),
-                 scaleinvH0::Bool = true && (typeof(P) <: Nothing) )
-    LBFGS(Int(m), _alphaguess(alphaguess), linesearch, P, precondprep, manifold, scaleinvH0)
+                 init_invH0 = P === nothing ? nocedal_wright_init! : nothing)
+    LBFGS(Int(m), _alphaguess(alphaguess), linesearch, P, precondprep, manifold, init_invH0)
 end
 
 Base.summary(::LBFGS) = "L-BFGS"
@@ -118,6 +123,7 @@ mutable struct LBFGSState{Tx, Tdx, Tdg, T, G} <: Optim.AbstractOptimizerState
     twoloop_alpha
     pseudo_iteration::Int
     s::Tx
+    invH0diag::Tx
     Optim.@add_linesearch_fields()
 end
 function reset!(method, state::LBFGSState, obj, x)
@@ -150,6 +156,7 @@ function Optim.initial_state(method::LBFGS, options, d, initial_x)
               Vector{T}(undef, method.m), #Buffer for use by twoloop
               0,
               eltype(Optim.gradient(d))(NaN).*Optim.gradient(d), # Store current search direction in state.s
+              fill!(similar(Optim.gradient(d)), 1),  # store initial inverse Hessian approximation in state.H0diag
               Optim.@initial_linesearch()...)
 end
 
@@ -166,7 +173,7 @@ function Optim.update_state!(d, state::LBFGSState, method::LBFGS)
     # Determine the L-BFGS search direction # FIXME just pass state and method?
     twoloop!(state.s, Optim.gradient(d), state.rho, state.dx_history, state.dg_history,
              method.m, state.pseudo_iteration,
-             state.twoloop_alpha, state.twoloop_q, method.scaleinvH0, method.P)
+             state.twoloop_alpha, state.twoloop_q, state.invH0diag, method.init_invH0, method.P)
     Optim.project_tangent!(method.manifold, state.s, state.x)
 
     # Save g value to prepare for update_g! call

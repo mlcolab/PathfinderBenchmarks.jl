@@ -4,7 +4,7 @@ using DynamicHMC: DynamicHMC
 using DimensionalData: DimensionalData
 using Folds: Folds
 using InferenceObjects: InferenceObjects
-using LinearAlgebra: LinearAlgebra
+using LinearAlgebra
 using LogDensityProblems: LogDensityProblems
 using MCMCDiagnosticTools: MCMCDiagnosticTools
 using KrylovKit: KrylovKit
