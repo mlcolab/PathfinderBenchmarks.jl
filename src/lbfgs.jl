@@ -56,7 +56,7 @@ function twoloop!(s,
     end
 
     # Copy q into s for forward pass
-    if init_invH0! !== nothing && pseudo_iteration > 1
+    if precon === nothing && pseudo_iteration > 1
         i = mod1(upper, m)
         dxi = dx_history[i]
         dgi = dg_history[i]
