@@ -61,7 +61,6 @@ posterior_seeds = [
 
 # ╔═╡ 87f31447-bf3c-4f7f-9ef1-1b2851ab00f0
 @progress for (posterior_name, seed) in posterior_seeds
-    startswith(posterior_name, "arma-arma11") || continue
     path = posterior_name
     isdir(path) || mkpath(path)
     post = PosteriorDB.posterior(pdb, posterior_name)
