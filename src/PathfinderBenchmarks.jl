@@ -15,6 +15,7 @@ using Transducers: Transducers
 
 include("diagnostics.jl")
 include("lbfgs.jl")
+include("counting_problem.jl")
 include("config.jl")
 include("dynamichmc.jl")
 
