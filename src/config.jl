@@ -1,6 +1,4 @@
-struct PathfinderConfig{O}
-    optimizer::O
+struct PathfinderConfig{O<:NamedTuple}
+    options::O
 end
-function PathfinderConfig()
-    return PathfinderConfig(Pathfinder.default_optimizer(Pathfinder.DEFAULT_HISTORY_LENGTH))
-end
+PathfinderConfig(; options...) = PathfinderConfig(NamedTuple(options))

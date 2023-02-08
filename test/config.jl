@@ -1,13 +1,12 @@
-using Optim, Pathfinder, PathfinderBenchmarks, Test
+using Optim, PathfinderBenchmarks, Test
 
 @testset "PathfinderConfig" begin
     cfg = PathfinderBenchmarks.PathfinderConfig()
-    optimizer = cfg.optimizer
-    @test optimizer isa Optim.LBFGS
-    @test optimizer.m == Pathfinder.DEFAULT_HISTORY_LENGTH
-    @test optimizer.linesearch! isa Optim.LineSearches.MoreThuente
+    @test cfg.options === NamedTuple()
 
-    optimizer = Newton()
-    cfg2 = PathfinderBenchmarks.PathfinderConfig(optimizer)
-    @test cfg2.optimizer === optimizer
+    optimizers = [LBFGS(), Newton()]
+    @testset for optimizer in optimizers, history_length in [3, 6]
+        cfg = PathfinderBenchmarks.PathfinderConfig(; optimizer, history_length)
+        @test cfg.options === (; optimizer, history_length)
+    end
 end
