@@ -54,7 +54,7 @@ using LinearAlgebra,
             result1 = pathfinder(prob; rng, optimizer)
 
             optimizer = PathfinderBenchmarks.LBFGS(;
-                m=history_length, init_invH0=PathfinderBenchmarks.nocedal_wright_init!
+                m=history_length, init_invH0=PathfinderBenchmarks.init_invH0_nocedal_wright!
             )
             rng = Random.seed!(seed)
             result2 = pathfinder(prob; rng, optimizer)
