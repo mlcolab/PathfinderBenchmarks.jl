@@ -1,6 +1,29 @@
 # The following code is included to support alternative initializations of the inverse
 # Hessian. See https://github.com/JuliaNLSolvers/Optim.jl/issues/955
 
+"""
+    LBFGS(;
+        m = 10,
+        alphaguess = LineSearches.InitialStatic(),
+        linesearch = LineSearches.HagerZhang(),
+        P = nothing,
+        precondprep = (P, x) -> nothing,
+        manifold = Optim.Flat(),
+        init_invH0 = P === nothing ? init_invH0_nocedal_wright! : nothing,
+    )
+
+A modification of [`Optim.LBFGS`](https://julianlsolvers.github.io/Optim.jl/stable/#algo/lbfgs/)
+to add the keyword `init_invH0`.
+
+`init_invH0` is a mutating function with the signature `init_invH0!(invH0diag, s, y)`, `s`
+is the change in the position, `y` is the change in the gradient, and `invH0diag` is the
+diagonal of the initial inverse Hessian estimate from the previous iteration, which is
+updated in-place.
+
+See also: `init_invH0_nocedal_wright!`, `init_invH0_gilbert!`
+"""
+LBFGS
+
 # Use the initial scaling guess from
 # Nocedal & Wright (2nd ed), Equation (7.20)
 init_invH0_nocedal_wright!(α, s, y) = fill!(α, dot(y, s) / sum(abs2, y))
@@ -86,27 +109,6 @@ function twoloop!(s,
     return
 end
 
-"""
-    LBFGS(;
-        m = 10,
-        alphaguess = LineSearches.InitialStatic(),
-        linesearch = LineSearches.HagerZhang(),
-        P = nothing,
-        precondprep = (P, x) -> nothing,
-        manifold = Optim.Flat(),
-        init_invH0 = P === nothing ? init_invH0_nocedal_wright! : nothing,
-    )
-
-A modification of [`Optim.LBFGS`](https://julianlsolvers.github.io/Optim.jl/stable/#algo/lbfgs/)
-to add the keyword `init_invH0`.
-
-`init_invH0` is a mutating function with the signature `init_invH0!(invH0diag, s, y)`, `s`
-is the change in the position, `y` is the change in the gradient, and `invH0diag` is the
-diagonal of the initial inverse Hessian estimate from the previous iteration, which is
-updated in-place.
-
-See also: `init_invH0_nocedal_wright!`, `init_invH0_gilbert!`
-"""
 struct LBFGS{T, IL, L, Tprep, IH} <: Optim.FirstOrderOptimizer
     m::Int
     alphaguess!::IL
