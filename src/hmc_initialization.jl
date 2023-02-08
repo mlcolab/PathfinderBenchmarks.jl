@@ -25,7 +25,7 @@ function DynamicHMC.warmup(
     sampling_logdensity, pf_init::PathfinderPointInitialization, warmup_state
 )
     (; rng, ℓ, reporter) = sampling_logdensity
-    (; q, κ, ϵ) = extract_initialization(warmup_state)
+    (; q, κ, ϵ) = _extract_initialization(warmup_state)
     q′, _ = _pathfinder_point_and_metric(rng, ℓ, pf_init.cfg, q)
     DynamicHMC.report(reporter, "Pathfinder drew initial point"; q=q′)
     return nothing, DynamicHMC.WarmupState(DynamicHMC.evaluate_ℓ(ℓ, q′), κ, ϵ)
@@ -50,7 +50,7 @@ function DynamicHMC.warmup(
     sampling_logdensity, pf_init::PathfinderPointMetricInitialization, warmup_state
 )
     (; rng, ℓ, reporter) = sampling_logdensity
-    (; q, ϵ) = extract_initialization(warmup_state)
+    (; q, ϵ) = _extract_initialization(warmup_state)
     q′, M⁻¹ = _pathfinder_point_and_metric(rng, ℓ, pf_init.cfg, q)
     DynamicHMC.report(reporter, "Pathfinder drew initial point"; q=q′)
     DynamicHMC.report(reporter, "Pathfinder estimated inverse metric"; M⁻¹)

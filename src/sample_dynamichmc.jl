@@ -1,5 +1,25 @@
+"""
+    sample_dynamichmc(prob, ndraws, nchains; kwargs...) -> InferenceObjects.InferenceData
+
+Sample the LogDensityProblem `prob` using DynamicHMC.jl.
+
+# Keywords
+
+- `rng::AbstractRNG`: random number generator
+- `executor=Transducers.PreferParallel()`: executor used to sample the chains in parallel
+- `ntries::Int=100`
+- `initializations=fill((), nchains)`: vector of initializations for each chain. Each entry
+    should be the same as the `initialization` keyword argument to
+    `DynamicHMC.mcmc_with_warmup`.
+- `dims=(;)`: map from parameter names to dimension names, forwarded to
+    `InferenceObjects.convert_to_dataset`.
+- `coords=(;)`: map from dimension names in `dims` to named indices, forwarded to
+    `InferenceObjects.convert_to_dataset`.
+- Remaining keywords are forwarded to `DynamicHMC.mcmc_with_warmup`.
+"""
+sample_dynamichmc
 function sample_dynamichmc(
-    prob::StanLogDensityProblems.StanProblem, ndraws, nchains; kwargs...
+    prob::StanLogDensityProblems.StanProblem, ndraws::Int, nchains::Int; kwargs...
 )
     param_unc_names = BridgeStan.param_unc_names(prob.model)
     # sample unconstrained parameters
@@ -139,11 +159,19 @@ end
 # Note: technically these are not part of the API, but they are stable, see
 # https://github.com/tpapp/DynamicHMC.jl/issues/177
 
-function extract_initialization(state)
+function _extract_initialization(state)
     (; Q, κ, ϵ) = state
     return (; q=Q.q, κ, ϵ)
 end
 
+"""
+    dhmc_warmup(rng::AbstractRNG, ℓ; kwargs...) -> NamedTuple
+
+Run just the warmup stage of `DynamicHMC.mcmc_with_warmup`, returning a new `initialization`.
+
+`kwargs` may contain any keyword argument accepted by `DynamicHMC.mcmc_with_warmup`, in
+particular `warmup_stages` and `initialization`.
+"""
 function dhmc_warmup(
     rng::Random.AbstractRNG,
     ℓ;
@@ -155,11 +183,19 @@ function dhmc_warmup(
         result = DynamicHMC.mcmc_keep_warmup(
             rng, ℓ, 0; warmup_stages=(stage,), initialization=init, kwargs...
         )
-        return extract_initialization(result.final_warmup_state)
+        return _extract_initialization(result.final_warmup_state)
     end
     return initialization_final
 end
 
+"""
+    dhmc_sample(rng::AbstractRNG, ℓ, ndraws; kwargs...) -> NamedTuple
+
+Run the post-warmup stage of `DynamicHMC.mcmc_with_warmup`, returning `ndraws` samples.
+
+`kwargs` may contain any keyword argument accepted by `DynamicHMC.mcmc_with_warmup`. See
+that docstring for a description of the output.
+"""
 function dhmc_sample(rng::Random.AbstractRNG, ℓ, ndraws; initialization, kwargs...)
     return DynamicHMC.mcmc_with_warmup(
         rng, ℓ, ndraws; warmup_stages=(), initialization, kwargs...
