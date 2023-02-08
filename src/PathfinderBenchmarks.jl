@@ -18,8 +18,9 @@ include("lbfgs.jl")
 include("counting_problem.jl")
 include("config.jl")
 include("dynamichmc.jl")
+include("hmc_initialization.jl")
 
-export PathfinderConfig
+export PathfinderConfig, PathfinderPointInitialization, PathfinderPointMetricInitialization
 export sample_dynamichmc
 export ess_rhat, pdcond
 

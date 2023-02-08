@@ -7,4 +7,5 @@ using Test
     include("lbfgs.jl")
     include("counting_problem.jl")
     include("config.jl")
+    include("hmc_initialization.jl")
 end
