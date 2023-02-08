@@ -1,19 +1,19 @@
 # The following code is included to support alternative initializations of the inverse
 # Hessian. See https://github.com/JuliaNLSolvers/Optim.jl/issues/955
 
+# Use the initial scaling guess from
+# Nocedal & Wright (2nd ed), Equation (7.20)
+init_invH0_nocedal_wright!(α, s, y) = fill!(α, dot(y, s) / sum(abs2, y))
+
 # eq 4.9
 # Gilbert, J.C., Lemaréchal, C. Some numerical experiments with variable-storage quasi-Newton algorithms.
 # Mathematical Programming 45, 407–435 (1989). https://doi.org/10.1007/BF01589113
-function gilbert_init!(α, s, y)
+function init_invH0_gilbert!(α, s, y)
     a = dot(y, Diagonal(α), y)
     b = dot(y, s)
     c = dot(s, inv(Diagonal(α)), s)
     return @. α = b / (a / α + y^2 - (a / c) * (s / α)^2)
 end
-
-# Use the initial scaling guess from
-# Nocedal & Wright (2nd ed), Equation (7.20)
-nocedal_wright_init!(α, s, y) = fill!(α, dot(y, s) / sum(abs2, y))
 
 #! format: off
 
@@ -86,6 +86,27 @@ function twoloop!(s,
     return
 end
 
+"""
+    LBFGS(;
+        m = 10,
+        alphaguess = LineSearches.InitialStatic(),
+        linesearch = LineSearches.HagerZhang(),
+        P = nothing,
+        precondprep = (P, x) -> nothing,
+        manifold = Optim.Flat(),
+        init_invH0 = P === nothing ? init_invH0_nocedal_wright! : nothing,
+    )
+
+A modification of [`Optim.LBFGS`](https://julianlsolvers.github.io/Optim.jl/stable/#algo/lbfgs/)
+to add the keyword `init_invH0`.
+
+`init_invH0` is a mutating function with the signature `init_invH0!(invH0diag, s, y)`, `s`
+is the change in the position, `y` is the change in the gradient, and `invH0diag` is the
+diagonal of the initial inverse Hessian estimate from the previous iteration, which is
+updated in-place.
+
+See also: `init_invH0_nocedal_wright!`, `init_invH0_gilbert!`
+"""
 struct LBFGS{T, IL, L, Tprep, IH} <: Optim.FirstOrderOptimizer
     m::Int
     alphaguess!::IL

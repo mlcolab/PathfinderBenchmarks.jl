@@ -18,8 +18,10 @@ using LinearAlgebra,
 
     @testset "consistency with Pathfinder's inverse hessians" begin
         @testset for history_length in [3, 6, 10],
-            init_invH0 in
-            [PathfinderBenchmarks.nocedal_wright_init!, PathfinderBenchmarks.gilbert_init!]
+            init_invH0 in [
+                PathfinderBenchmarks.init_invH0_nocedal_wright!,
+                PathfinderBenchmarks.init_invH0_gilbert!,
+            ]
 
             x₀ = rand(dim) .* 4 .- 2
             optim_prob = Pathfinder.build_optim_problem(optim_fun, x₀)
