@@ -40,6 +40,7 @@ end
             @test prob_counting.num_fun_evals == i
             @test prob_counting.num_grad_evals == 0
             @test prob_counting.num_hess_evals == 0
+            @test PathfinderBenchmarks.num_evaluations(prob_counting) == [i, 0, 0]
         end
         order ≥ 1 || continue
 
@@ -53,6 +54,7 @@ end
             @test prob_counting.num_fun_evals == 0
             @test prob_counting.num_grad_evals == i
             @test prob_counting.num_hess_evals == 0
+            @test PathfinderBenchmarks.num_evaluations(prob_counting) == [0, i, 0]
         end
         order ≥ 2 || continue
 
@@ -69,6 +71,7 @@ end
             @test prob_counting.num_fun_evals == 0
             @test prob_counting.num_grad_evals == 0
             @test prob_counting.num_hess_evals == i
+            @test PathfinderBenchmarks.num_evaluations(prob_counting) == [0, 0, i]
         end
     end
 end

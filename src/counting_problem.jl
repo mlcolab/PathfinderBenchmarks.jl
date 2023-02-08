@@ -7,6 +7,10 @@ mutable struct EvalCountingProblem{P}
 end
 EvalCountingProblem(prob) = EvalCountingProblem(prob, 0, 0, 0)
 
+function num_evaluations(prob::EvalCountingProblem)
+    return [prob.num_fun_evals, prob.num_grad_evals, prob.num_hess_evals]
+end
+
 function LogDensityProblems.capabilities(::Type{<:EvalCountingProblem{P}}) where {P}
     return LogDensityProblems.capabilities(P)
 end
