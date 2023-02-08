@@ -202,16 +202,19 @@ function dhmc_sample(rng::Random.AbstractRNG, ℓ, ndraws; initialization, kwarg
     )
 end
 
-function _dhmc_warmup_until_succeeds(rng, prob, ntries; kwargs...)
+function _dhmc_warmup_until_succeeds(rng, prob, ntries; initialization=(), kwargs...)
     i = 1
     while i ≤ ntries
         try
-            return dhmc_warmup(rng, prob; kwargs...), i
+            return dhmc_warmup(rng, prob; initialization, kwargs...), i
         catch e
             e isa DynamicHMC.DynamicHMCError || rethrow()
             @warn e
             @warn "DynamicHMC failed to sample, trying again ($i/$ntries)"
             i += 1
+            (isempty(initialization) || !haskey(initialization, :q)) && continue
+            q = DynamicHMC.random_position(rng, length(initialization.q))
+            initialization = merge(initialization, (; q))
         end
     end
     @error "DynamicHMC failed to sample after $ntries tries"
