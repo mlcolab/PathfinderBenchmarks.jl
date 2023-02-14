@@ -125,7 +125,7 @@ function LBFGS(; m::Integer = 10,
                  P=nothing,
                  precondprep = (P, x) -> nothing,
                  manifold::Optim.Manifold=Optim.Flat(),
-                 init_invH0 = P === nothing ? nocedal_wright_init! : nothing)
+                 init_invH0 = P === nothing ? init_invH0_nocedal_wright! : nothing)
     LBFGS(Int(m), _alphaguess(alphaguess), linesearch, P, precondprep, manifold, init_invH0)
 end
 
