@@ -29,7 +29,7 @@ end
 
 # ╔═╡ 99590696-7880-4835-aa3d-bdbb39da71d7
 begin
-    nruns = 20
+    nruns = 100
     function all_warmup_stages(δ::Real)
         stepsize_adaptation = DualAveraging(; δ)
         dws_diag = default_warmup_stages(; stepsize_adaptation)
