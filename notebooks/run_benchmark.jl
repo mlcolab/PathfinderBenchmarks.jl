@@ -15,6 +15,7 @@ begin
         JSON3,
         LinearAlgebra,
         LogDensityProblems,
+        Logging,
         Optim,
         Pathfinder,
         PathfinderBenchmarks,
@@ -23,8 +24,11 @@ begin
         Random,
         StanLogDensityProblems,
         Statistics,
+        TerminalLoggers,
         Transducers
     using Optim.LineSearches
+
+    Logging.global_logger(TerminalLogger(; right_justify=120))
 end
 
 # ╔═╡ 99590696-7880-4835-aa3d-bdbb39da71d7
@@ -85,7 +89,7 @@ posterior_seeds = [
 ];
 
 # ╔═╡ 87f31447-bf3c-4f7f-9ef1-1b2851ab00f0
-@progress for (posterior_name, seed) in posterior_seeds
+@progress name = "posterior" for (posterior_name, seed) in posterior_seeds
     path = posterior_name
     isdir(path) || mkpath(path)
     post = PosteriorDB.posterior(pdb, posterior_name)
@@ -101,10 +105,10 @@ posterior_seeds = [
     rng = Random.seed!(seed)
     run_seeds = rand(rng, UInt16, nruns)
     run_inits = rand(rng, dim, nchains, nruns) .* 4 .- 2
-    @progress for (run_name, warmup_stages) in all_warmup_stages
+    @progress name = posterior_name for (run_name, warmup_stages) in all_warmup_stages(δ)
         run_path = joinpath(path, "results_$run_name")
         isdir(run_path) || mkpath(run_path)
-        @progress for i in 1:nruns
+        @progress name = run_name for i in 1:nruns
             run_file = joinpath(run_path, "run.$i.nc")
             isfile(run_file) && continue
             initializations = [(; q=run_inits[:, j, i]) for j in axes(run_inits, 2)]
