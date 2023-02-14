@@ -34,8 +34,10 @@ init_invH0_nocedal_wright!(α, s, y) = fill!(α, dot(y, s) / sum(abs2, y))
 function init_invH0_gilbert!(α, s, y)
     a = dot(y, Diagonal(α), y)
     b = dot(y, s)
-    c = dot(s, inv(Diagonal(α)), s)
-    return @. α = b / (a / α + y^2 - (a / c) * (s / α)^2)
+    # TODO: work out what we should do when any elements of α are 0
+    invα = (α .= inv.(α))  # avoid allocating a vector for the inverse
+    c = dot(s, Diagonal(invα), s)
+    return @. α = b / (a * invα + y^2 - (a / c) * (s * invα)^2)
 end
 
 #! format: off
