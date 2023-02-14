@@ -4,7 +4,10 @@ authors = ["Seth Axen <seth@sethaxen.com> and contributors"]
 version = "0.1.0"
 
 [deps]
+AlgebraOfGraphics = "cbdf2221-f076-402e-a563-3d30da359d67"
 BridgeStan = "c88b6f0a-829e-4b0b-94b7-f06ab5908f5a"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DimensionalData = "0703355e-b756-11e9-17c0-8b28908087d0"
 DynamicHMC = "bbc10e6e-7c05-544b-b16e-64fede858acb"
 Folds = "41a02a25-b8f0-4f67-bc48-60067656b558"
@@ -25,7 +28,10 @@ TerminalLoggers = "5d786b92-1e48-4d6f-9151-6b4477ca9bed"
 Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
 
 [compat]
+AlgebraOfGraphics = "0.6"
 BridgeStan = "1"
+CairoMakie = "0.10"
+DataFrames = "1"
 DimensionalData = "0.24"
 DynamicHMC = "3"
 Folds = "0.2"
