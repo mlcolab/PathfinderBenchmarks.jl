@@ -29,24 +29,26 @@ end
 # ╔═╡ 99590696-7880-4835-aa3d-bdbb39da71d7
 begin
     nruns = 20
-    all_warmup_stages = [
-        "default_diag" => default_warmup_stages(),
-        "default_dense" => default_warmup_stages(; M=Symmetric),
-        "pathfinder_point_init" =>
-            (PathfinderPointInitialization(PathfinderConfig()), default_warmup_stages()...),
-        "pathfinder_metric_diag_init" => (
-            PathfinderPointMetricInitialization(PathfinderConfig()),
-            default_warmup_stages()...,
-        ),
-        "pathfinder_metric_dense_init" => (
-            PathfinderPointMetricInitialization(PathfinderConfig()),
-            default_warmup_stages(; M=Symmetric)...,
-        ),
-        "pathfinder_metric" => (
-            PathfinderPointMetricInitialization(PathfinderConfig()),
-            default_warmup_stages(; doubling_stages=0, middle_steps=0)[1:(end - 1)]...,
-        ),
-    ]
+    function all_warmup_stages(δ::Real)
+        stepsize_adaptation = DualAveraging(; δ)
+        dws_diag = default_warmup_stages(; stepsize_adaptation)
+        dws_dense = default_warmup_stages(; stepsize_adaptation, M=Symmetric)
+        dws_none = default_warmup_stages(;
+            stepsize_adaptation, doubling_stages=0, middle_steps=0
+        )[1:(end - 1)]  # only keep one step size adaptation stage
+        pf_cfg = PathfinderConfig()
+        return [
+            "default_diag" => dws_diag,
+            "default_dense" => dws_dense,
+            "pathfinder_point_init" => (PathfinderPointInitialization(pf_cfg), dws_diag...),
+            "pathfinder_metric_diag_init" =>
+                (PathfinderPointMetricInitialization(pf_cfg), dws_diag...),
+            "pathfinder_metric_dense_init" =>
+                (PathfinderPointMetricInitialization(pf_cfg), dws_dense...),
+            "pathfinder_metric" =>
+                (PathfinderPointMetricInitialization(pf_cfg), dws_none...),
+        ]
+    end
 end;
 
 # ╔═╡ 3cfbbc40-6189-4da9-8cea-5ed477b4f9d8
@@ -71,6 +73,7 @@ posterior_seeds = [
     hmc_config = open(JSON3.read, joinpath(path, "hmc_config.json"))
     ndraws = hmc_config["ndraws"]
     nchains = hmc_config["nchains"]
+    δ = hmc_config["delta"]
 
     rng = Random.seed!(seed)
     run_seeds = rand(rng, UInt16, nruns)
