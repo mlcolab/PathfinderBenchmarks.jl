@@ -24,6 +24,7 @@ begin
         StanLogDensityProblems,
         Statistics,
         Transducers
+    using Optim.LineSearches
 end
 
 # ╔═╡ 99590696-7880-4835-aa3d-bdbb39da71d7
@@ -47,6 +48,28 @@ begin
                 (PathfinderPointMetricInitialization(pf_cfg), dws_dense...),
             "pathfinder_metric" =>
                 (PathfinderPointMetricInitialization(pf_cfg), dws_none...),
+            "pathfinder_metric_hagerzhangls" => (
+                PathfinderPointMetricInitialization(
+                    PathfinderConfig(;
+                        optimizer=LBFGS(;
+                            linesearch=HagerZhang(), m=Pathfinder.DEFAULT_HISTORY_LENGTH
+                        ),
+                    ),
+                ),
+                dws_none...,
+            ),
+            "pathfinder_metric_hagerzhangls_gilbertinit" => (
+                PathfinderPointMetricInitialization(
+                    PathfinderConfig(;
+                        optimizer=PathfinderBenchmarks.LBFGS(;
+                            linesearch=HagerZhang(),
+                            m=Pathfinder.DEFAULT_HISTORY_LENGTH,
+                            init_invH0=PathfinderBenchmarks.init_invH0_gilbert!,
+                        ),
+                    ),
+                ),
+                dws_none...,
+            ),
         ]
     end
 end;
