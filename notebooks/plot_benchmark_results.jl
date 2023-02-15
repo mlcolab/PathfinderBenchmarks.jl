@@ -26,8 +26,8 @@ begin
     CairoMakie.activate!(; type="svg")
     set_theme!(theme_minimal())
     update_theme!(; fontsize=18, font="CMU", linewidth=2)
-    axis = (
-        width=500, height=450, xminorticksvisible=true, xminorticks=IntervalsBetween(10)
+    axis_ecdf = (
+        width=500, height=450, xminorticksvisible=true, xminorticks=IntervalsBetween(10), ylabel="probability"
     )
 end;
 
@@ -45,7 +45,7 @@ end
 idata = let
     model_path = "eight_schools-eight_schools_centered"
     results_file = joinpath(model_path, "all_results.nc")
-    if isfile(results_file)
+    idata = if isfile(results_file)
         from_netcdf(results_file)
     else
         subdirs = filter(startswith("results_"), readdir(model_path))
@@ -59,6 +59,8 @@ idata = let
         to_netcdf(idata, results_file)
         idata
     end
+	# benchmarks = ["default_dense", "default_diag", "pathfinder_metric", "pathfinder_metric_hagerzhangls", "pathfinder_metric_hagerzhangls_gilbertinit", "pathfinder_metric_nlopt_lbfgs", "pathfinder_point_init"]
+	idata#[benchmark=At(benchmarks)]
 end
 
 # ╔═╡ 37cd1ca2-fa8b-4e41-a1cc-97f227646c4d
@@ -86,8 +88,9 @@ condition = rebuild(
 let
     fig = draw(
         data(condition) * mapping(:condition_number; color=:benchmark) * visual(ECDFPlot);
-        axis=merge(axis, (; xscale=log10)),
+        axis=merge(axis_ecdf, (; xscale=log10)),
     )
+	xlims!(; low=1, high=10^3)
     fig
 end
 
@@ -102,16 +105,20 @@ converg_diag = let
 end
 
 # ╔═╡ 3ed64104-147b-4f81-9082-1653b91cad09
-draw(
-    data(converg_diag) * mapping(:ess; color=:benchmark) * visual(ECDFPlot);
-    axis=merge(axis, (; xscale=log10)),
-)
+let
+	fig = draw(
+	    data(converg_diag) * mapping(:ess; color=:benchmark) * visual(ECDFPlot);
+	    axis=merge(axis_ecdf, (; xscale=log10)),
+	)
+	# xlims!(; low=10^3.8)
+	fig
+end
 
 # ╔═╡ 3b355df6-5a7e-41c4-9bcf-db7aaf6a734b
 ess_per = let
-    num_evals = dropdims(sum(idata.sample_stats.num_evals; dims=:chain); dims=:chain)
+    num_evals = dropdims(sum(idata.sample_stats.num_evals; dims=(:chain, :eval_type)); dims=(:chain, :eval_type))
     num_evals_total = dropdims(
-        sum(num_evals; dims=(:stage, :eval_type)); dims=(:stage, :eval_type)
+        sum(num_evals; dims=:stage); dims=:stage
     )
     time = dropdims(sum(idata.sample_stats.time; dims=:chain); dims=:chain)
     ess_per_nevals = broadcast_dims(/, converg_diag.ess, num_evals)
@@ -136,43 +143,26 @@ let
             group=:run => nonnumeric,
         ) *
         visual(Lines; linewidth=0.2);
-        axis=merge(axis, (; xscale=log10)),
+		axis=(; xscale=log10),
     )
 end
 
 # ╔═╡ 2525e03a-1792-4693-a6e3-4003f74e7344
 draw(
-    data(minimum(ess_per[eval_type=At(["grad"])]; dims=:param)) *
-    mapping(:ess_per_nevals => :ess_per_ngrad_evals; color=:benchmark, col=:stage) *
+    data(minimum(ess_per.ess_per_nevals; dims=:param)) *
+    mapping(:ess_per_nevals; color=:benchmark, col=:stage) *
     visual(ECDFPlot);
     facet=(; linkxaxes=:none),
-    axis=merge(axis, (; xscale=log10)),
+    axis=axis_ecdf,
 )
 
 # ╔═╡ be7bcb5c-3769-4c8e-8283-169808d5afe6
-let
-    x = broadcast_dims(
-        /,
-        ess_per.ess_per_nevals_total,
-        ess_per.ess_per_nevals_total[benchmark=At("default_diag")],
-    )
-    draw(
-        data(minimum(x; dims=:param)) *
-        mapping(:ess_per_nevals_total; color=:benchmark) *
-        visual(ECDFPlot);
-        axis=merge(axis, (; xscale=log10)),
-    )
-end
-
-# ╔═╡ 8de8cd7f-d8c9-466d-8e0f-1536f822c178
-broadcast_dims(
-    /,
-    ess_per.ess_per_nevals_total,
-    ess_per.ess_per_nevals_total[benchmark=At("default_diag")],
+draw(
+	data(minimum(ess_per.ess_per_nevals_total; dims=:param)) *
+	mapping(:ess_per_nevals_total; color=:benchmark) *
+	visual(ECDFPlot);
+	axis=merge(axis_ecdf, (xscale=log10,))
 )
-
-# ╔═╡ ab4ffad1-7bcc-4d54-a80b-ff0243ed6b50
-ess_per
 
 # ╔═╡ bbe121fb-5ed6-4e1e-ad84-7b9c9627ece9
 draw(
@@ -180,7 +170,7 @@ draw(
     mapping(:ess_per_sec; color=:benchmark, col=:stage) *
     visual(ECDFPlot);
     facet=(; linkxaxes=:none),
-    axis=merge(axis, (; xscale=log10)),
+    axis=merge(axis_ecdf, (; xscale=log10)),
 )
 
 # ╔═╡ 0794c8ae-3d81-4c62-8998-3bdbe217601d
@@ -188,7 +178,7 @@ draw(
     data(minimum(ess_per; dims=:param)) *
     mapping(:ess_per_sec_total; color=:benchmark) *
     visual(ECDFPlot);
-    axis=merge(axis, (; xscale=log10)),
+    axis=merge(axis_ecdf, (; xscale=log10)),
 )
 
 # ╔═╡ Cell order:
@@ -205,7 +195,5 @@ draw(
 # ╠═c90a0c05-a942-446f-a7c7-726b7d6e11da
 # ╠═2525e03a-1792-4693-a6e3-4003f74e7344
 # ╠═be7bcb5c-3769-4c8e-8283-169808d5afe6
-# ╠═8de8cd7f-d8c9-466d-8e0f-1536f822c178
-# ╠═ab4ffad1-7bcc-4d54-a80b-ff0243ed6b50
 # ╠═bbe121fb-5ed6-4e1e-ad84-7b9c9627ece9
 # ╠═0794c8ae-3d81-4c62-8998-3bdbe217601d
