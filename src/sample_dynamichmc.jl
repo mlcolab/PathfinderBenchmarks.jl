@@ -67,6 +67,9 @@ function _sample_dynamichmc(
         # avoid including compilation time in the timing
 
         count_prob_warmup = EvalCountingProblem(prob)
+        precompile(
+            _dhmc_warmup_until_succeeds, (typeof(rng_chain), typeof(count_prob_warmup), Int)
+        )
         (warmup_initialization, ntries_warmup), time_warmup = @timed _dhmc_warmup_until_succeeds(
             rng_chain,
             count_prob_warmup,
@@ -79,6 +82,7 @@ function _sample_dynamichmc(
         nevals_warmup = num_evaluations(count_prob_warmup)
 
         count_prob_sample = EvalCountingProblem(prob)
+        precompile(dhmc_sample, (typeof(rng_chain), typeof(count_prob_sample), Int))
         sample, time_sample = @timed dhmc_sample(
             rng_chain,
             count_prob_sample,
