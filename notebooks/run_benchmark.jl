@@ -17,6 +17,7 @@ begin
         LogDensityProblems,
         Logging,
         Optim,
+        OptimizationNLopt,
         Pathfinder,
         PathfinderBenchmarks,
         PosteriorDB,
@@ -34,7 +35,7 @@ end
 # ╔═╡ 99590696-7880-4835-aa3d-bdbb39da71d7
 begin
     nruns = 100
-    function all_warmup_stages(δ::Real)
+    function all_warmup_stages(n::Int, δ::Real)
         stepsize_adaptation = DualAveraging(; δ)
         dws_diag = default_warmup_stages(; stepsize_adaptation)
         dws_dense = default_warmup_stages(; stepsize_adaptation, M=Symmetric)
@@ -74,6 +75,12 @@ begin
                 ),
                 dws_none...,
             ),
+            "pathfinder_metric_nlopt_lbfgs" => (
+                PathfinderPointMetricInitialization(
+                    PathfinderConfig(; optimizer=NLopt.Opt(:LD_LBFGS, n))
+                ),
+                dws_none...,
+            ),
         ]
     end
 end;
@@ -105,7 +112,8 @@ posterior_seeds = [
     rng = Random.seed!(seed)
     run_seeds = rand(rng, UInt16, nruns)
     run_inits = rand(rng, dim, nchains, nruns) .* 4 .- 2
-    @progress name = posterior_name for (run_name, warmup_stages) in all_warmup_stages(δ)
+    @progress name = posterior_name for (run_name, warmup_stages) in
+                                        all_warmup_stages(dim, δ)
         run_path = joinpath(path, "results_$run_name")
         isdir(run_path) || mkpath(run_path)
         @progress name = run_name for i in 1:nruns
