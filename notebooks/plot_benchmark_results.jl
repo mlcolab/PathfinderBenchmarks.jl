@@ -31,16 +31,6 @@ begin
     )
 end;
 
-# ╔═╡ 8b726bc5-685d-40de-b27d-4a0e980b1bab
-# TODO: remove
-function Base.cat(data::InferenceData, others::InferenceData...; groups=keys(data), dims)
-    groups_cat = map(groups) do k
-        k => cat(data[k], (other[k] for other in others)...; dims=dims)
-    end
-    # keep other non-concatenated groups
-    return merge(data, others..., InferenceData(; groups_cat...))
-end
-
 # ╔═╡ 88f26eb3-8ca5-4146-aa66-8ae9ecd440a9
 idata = let
     model_path = "eight_schools-eight_schools_centered"
@@ -184,7 +174,6 @@ draw(
 # ╔═╡ Cell order:
 # ╠═a791fbea-a7e4-11ed-0c1e-0f45961d3d26
 # ╠═6ab900d1-008c-4cde-b114-408c1adcea33
-# ╠═8b726bc5-685d-40de-b27d-4a0e980b1bab
 # ╠═88f26eb3-8ca5-4146-aa66-8ae9ecd440a9
 # ╠═37cd1ca2-fa8b-4e41-a1cc-97f227646c4d
 # ╠═d385430b-0471-45de-b87b-a607ba2cd466
