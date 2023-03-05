@@ -14,7 +14,7 @@ PathfinderConfig(; options...) = PathfinderConfig(NamedTuple(options))
 # TODO: programatically generate this list from lists of combinations.
 function all_pathfinder_configurations(n::Int)
     return [
-        "" => PathfinderConfig(),
+        "default" => PathfinderConfig(),
         "initstaticscaled" => PathfinderConfig(;
             optimizer=Optim.LBFGS(;
                 alphaguess=LineSearches.InitialStatic(; scaled=true),

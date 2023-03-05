@@ -18,7 +18,7 @@ end
         cfg = cfgs[name]
         indicators = split(name, '_')
         @test cfg isa PathfinderBenchmarks.PathfinderConfig
-        if name == ""
+        if name == "default"
             @test cfg === PathfinderBenchmarks.PathfinderConfig()
             continue
         end
