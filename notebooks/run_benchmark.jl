@@ -36,14 +36,17 @@ end
 pdb = PosteriorDB.database()
 
 # ╔═╡ 372f1054-7b2b-431e-9903-cc130c0530cf
-posterior_seeds = [
-    "arma-arma11" => 5461,
-    "eight_schools-eight_schools_centered" => 2056,
-    "diamonds-diamonds" => 6842,
-];
+begin
+    posterior_configs = [
+        "arma-arma11" => (nruns=100, seed=5461),
+        "eight_schools-eight_schools_centered" => (nruns=100, seed=2056),
+        "diamonds-diamonds" => (nruns=20, seed=6842),
+    ]
+end
 
 # ╔═╡ 87f31447-bf3c-4f7f-9ef1-1b2851ab00f0
-@progress name = "posterior" for (posterior_name, seed) in posterior_seeds
+@progress name = "posterior" for (posterior_name, config) in posterior_configs
+    (; nruns, seed) = config
     path = posterior_name
     isdir(path) || mkpath(path)
     post = PosteriorDB.posterior(pdb, posterior_name)
@@ -59,12 +62,13 @@ posterior_seeds = [
     rng = Random.seed!(seed)
     run_seeds = rand(rng, UInt16, nruns)
     run_inits = rand(rng, dim, nchains, nruns) .* 4 .- 2
-    @progress name = posterior_name for (run_name, warmup_stages) in
+    @progress name = posterior_name for (benchmark_name, warmup_stages) in
                                         all_warmup_stages(dim, δ)
-        run_path = joinpath(path, "results_$run_name")
-        isdir(run_path) || mkpath(run_path)
-        @progress name = run_name for i in 1:nruns
-            run_file = joinpath(run_path, "run.$i.nc")
+        benchmark_name == "pathfinder_metric_diag_init" && continue
+        benchmark_path = joinpath(path, "results_$benchmark_name")
+        isdir(benchmark_path) || mkpath(benchmark_path)
+        @progress name = benchmark_name for i in 1:nruns
+            run_file = joinpath(benchmark_path, "run.$i.nc")
             isfile(run_file) && continue
             initializations = [(; q=run_inits[:, j, i]) for j in axes(run_inits, 2)]
             Random.seed!(rng, run_seeds[i])
