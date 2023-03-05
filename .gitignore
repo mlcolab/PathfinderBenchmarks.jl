@@ -1,3 +1,4 @@
 *.hpp
 *.so
 *.nc
+*.stan
