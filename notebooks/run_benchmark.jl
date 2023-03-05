@@ -66,9 +66,13 @@ end
                                         all_warmup_stages(dim, δ)
         benchmark_name == "pathfinder_metric_diag_init" && continue
         benchmark_path = joinpath(path, "results_$benchmark_name")
+        benchmark_file = joinpath(benchmark_path, "results.nc")
+        isfile(benchmark_file) && continue
         isdir(benchmark_path) || mkpath(benchmark_path)
+        run_files = String[]
         @progress name = benchmark_name for i in 1:nruns
             run_file = joinpath(benchmark_path, "run.$i.nc")
+            push!(run_files, run_file)
             isfile(run_file) && continue
             initializations = [(; q=run_inits[:, j, i]) for j in axes(run_inits, 2)]
             Random.seed!(rng, run_seeds[i])
@@ -77,6 +81,9 @@ end
             )
             to_netcdf(idata, run_file)
         end
+        @info "combining runs"
+        idata_merged = cat(map(from_netcdf, run_files)...; dims=:run)
+        to_netcdf(idata_merged, benchmark_file)
     end
 end
 
