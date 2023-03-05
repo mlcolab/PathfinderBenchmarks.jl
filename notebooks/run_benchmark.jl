@@ -32,59 +32,6 @@ begin
     Logging.global_logger(TerminalLogger(; right_justify=120))
 end
 
-# ╔═╡ 99590696-7880-4835-aa3d-bdbb39da71d7
-begin
-    nruns = 100
-    function all_warmup_stages(n::Int, δ::Real)
-        stepsize_adaptation = DualAveraging(; δ)
-        dws_diag = default_warmup_stages(; stepsize_adaptation)
-        dws_dense = default_warmup_stages(; stepsize_adaptation, M=Symmetric)
-        dws_none = default_warmup_stages(;
-            stepsize_adaptation, doubling_stages=0, middle_steps=0
-        )[1:(end - 1)]  # only keep one step size adaptation stage
-        pf_cfg = PathfinderConfig()
-        return [
-            "default_diag" => dws_diag,
-            "default_dense" => dws_dense,
-            "pathfinder_point_init" => (PathfinderPointInitialization(pf_cfg), dws_diag...),
-            "pathfinder_metric_diag_init" =>
-                (PathfinderPointMetricInitialization(pf_cfg), dws_diag...),
-            "pathfinder_metric_dense_init" =>
-                (PathfinderPointMetricInitialization(pf_cfg), dws_dense...),
-            "pathfinder_metric" =>
-                (PathfinderPointMetricInitialization(pf_cfg), dws_none...),
-            "pathfinder_metric_hagerzhangls" => (
-                PathfinderPointMetricInitialization(
-                    PathfinderConfig(;
-                        optimizer=LBFGS(;
-                            linesearch=HagerZhang(), m=Pathfinder.DEFAULT_HISTORY_LENGTH
-                        ),
-                    ),
-                ),
-                dws_none...,
-            ),
-            "pathfinder_metric_hagerzhangls_gilbertinit" => (
-                PathfinderPointMetricInitialization(
-                    PathfinderConfig(;
-                        optimizer=PathfinderBenchmarks.LBFGS(;
-                            linesearch=HagerZhang(),
-                            m=Pathfinder.DEFAULT_HISTORY_LENGTH,
-                            init_invH0=PathfinderBenchmarks.init_invH0_gilbert!,
-                        ),
-                    ),
-                ),
-                dws_none...,
-            ),
-            "pathfinder_metric_nlopt_lbfgs" => (
-                PathfinderPointMetricInitialization(
-                    PathfinderConfig(; optimizer=NLopt.Opt(:LD_LBFGS, n))
-                ),
-                dws_none...,
-            ),
-        ]
-    end
-end;
-
 # ╔═╡ 3cfbbc40-6189-4da9-8cea-5ed477b4f9d8
 pdb = PosteriorDB.database()
 
@@ -131,7 +78,6 @@ end
 
 # ╔═╡ Cell order:
 # ╠═a0691b7a-a3b6-11ed-1bb2-0fcb8b9730f2
-# ╠═99590696-7880-4835-aa3d-bdbb39da71d7
 # ╠═3cfbbc40-6189-4da9-8cea-5ed477b4f9d8
 # ╠═372f1054-7b2b-431e-9903-cc130c0530cf
 # ╠═87f31447-bf3c-4f7f-9ef1-1b2851ab00f0
