@@ -6,22 +6,21 @@ using InteractiveUtils
 
 # ╔═╡ c4f2cab6-ad32-11ed-35a8-ed04671e0997
 begin
-	using ArviZ, DimensionalData, LinearAlgebra,PosteriorDB, PyPlot, Statistics, StatsBase
-	using ArviZ: Dataset
+    using ArviZ, DimensionalData, LinearAlgebra, PosteriorDB, PyPlot, Statistics, StatsBase
+    using ArviZ: Dataset
 end
 
 # ╔═╡ 47950ab2-309d-454a-81bd-3d256f5e115f
 function PosteriorDB.load(
-	ref::PosteriorDB.ReferencePosterior,
-	::Type{InferenceObjects.Dataset},
+    ref::PosteriorDB.ReferencePosterior, ::Type{InferenceObjects.Dataset}
 )
-	draws = PosteriorDB.load(ref)
-	names = keys(first(draws))
-	x = [[d[k] for d in draws] for k in names]
-	dims = (; x=[:param])
-	coords = (; param=collect(names))
-	attrs = PosteriorDB.info(ref)
-	return InferenceObjects.convert_to_dataset((; x); attrs, dims, coords)
+    draws = PosteriorDB.load(ref)
+    names = keys(first(draws))
+    x = [[d[k] for d in draws] for k in names]
+    dims = (; x=[:param])
+    coords = (; param=collect(names))
+    attrs = PosteriorDB.info(ref)
+    return InferenceObjects.convert_to_dataset((; x); attrs, dims, coords)
 end
 
 # ╔═╡ 5a6c7f52-225a-4b30-a617-83b0f9b33f10
@@ -37,10 +36,10 @@ post = PosteriorDB.posterior(pdb, "eight_schools-eight_schools_centered")
 draws = load(PosteriorDB.reference_posterior(post), Dataset)
 
 # ╔═╡ e3cac270-a117-486c-879b-3e9c1312b263
-model(post) |> info
+info(model(post))
 
 # ╔═╡ 4049f3bb-46db-42ea-bfbf-de93f0f51c52
-implementation(model(post), "stan") |> load |> println
+println(load(implementation(model(post), "stan")))
 
 # ╔═╡ 08e63aa5-d914-4da5-9e06-327d5f58bb4d
 conddiag(x) = cond(Diagonal(x))
@@ -56,7 +55,8 @@ conddiag(cov_post)
 
 # ╔═╡ d57be9db-b12f-4f63-a06a-ec9b4a0bb313
 with_rc_context(; rc=Dict("plot.max_subplots" => 100)) do
-	plot_pair(draws; show=false, kind=:kde); gcf()
+    plot_pair(draws; show=false, kind=:kde)
+    gcf()
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
