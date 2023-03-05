@@ -60,6 +60,17 @@ function _sample_dynamichmc(
     warmup_stages=DynamicHMC.default_warmup_stages(),
     kwargs...,
 )
+    # if multipathfinder is used for initialization, we need to do so before splitting the
+    # chains
+    if first(warmup_stages) isa
+        Union{MultiPathfinderPointInitialization,MultiPathfinderPointMetricInitialization}
+        count_prob_mpf = EvalCountingProblem(prob)
+        initializations = warmup(
+            rng, count_prob_mpf, nchains, first(warmup_stages), initializations
+        )
+        warmup_stages = Base.tail(warmup_stages)
+    end
+
     # transducer for sampling, supports multiple parallelism approaches
     trans = Transducers.MapSplat() do seed, initialization
         rng_chain = deepcopy(rng)
@@ -68,7 +79,8 @@ function _sample_dynamichmc(
 
         count_prob_warmup = EvalCountingProblem(prob)
         precompile(
-            _dhmc_warmup_until_succeeds, (typeof(rng_chain), typeof(count_prob_warmup), Int)
+            _dhmc_warmup_until_succeeds,
+            (typeof(rng_chain), typeof(count_prob_warmup), Int),
         )
         (warmup_initialization, ntries_warmup), time_warmup = @timed _dhmc_warmup_until_succeeds(
             rng_chain,
