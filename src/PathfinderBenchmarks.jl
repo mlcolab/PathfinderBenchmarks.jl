@@ -9,6 +9,7 @@ using LinearAlgebra
 using LogDensityProblems: LogDensityProblems
 using KrylovKit: KrylovKit
 using Optim: Optim, LineSearches
+using OptimizationNLopt: NLopt
 using Pathfinder: Pathfinder
 using Random: Random
 using StanLogDensityProblems: StanLogDensityProblems
@@ -22,7 +23,7 @@ include("sample_dynamichmc.jl")
 include("hmc_initialization.jl")
 
 export PathfinderConfig, PathfinderPointInitialization, PathfinderPointMetricInitialization
-export sample_dynamichmc
+export all_pathfinder_configurations, all_warmup_stages, sample_dynamichmc
 export pdcond
 
 end
