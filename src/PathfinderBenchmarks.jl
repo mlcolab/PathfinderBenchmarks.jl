@@ -7,7 +7,6 @@ using Folds: Folds
 using InferenceObjects: InferenceObjects
 using LinearAlgebra
 using LogDensityProblems: LogDensityProblems
-using MCMCDiagnosticTools: MCMCDiagnosticTools
 using KrylovKit: KrylovKit
 using Optim: Optim, LineSearches
 using Pathfinder: Pathfinder
@@ -24,6 +23,6 @@ include("hmc_initialization.jl")
 
 export PathfinderConfig, PathfinderPointInitialization, PathfinderPointMetricInitialization
 export sample_dynamichmc
-export ess_rhat, pdcond
+export pdcond
 
 end

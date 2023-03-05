@@ -28,15 +28,3 @@ function svdvals_extreme(A; kwargs...)
 end
 
 _lastfirst(x) = (last(x), first(x))
-
-"""
-    ess_rhat(x::AbstractArray{Union{Missing,<:Real},3}) -> NamedTuple{(:ess,:rhat)}
-
-Compute bulk-effective sample size and rank-normalized ``\\hat{R}`` diagnostics.
-"""
-function ess_rhat(x)
-    ess, rhat_bulk = MCMCDiagnosticTools.ess_rhat_bulk(x; maxlag=typemax(Int))
-    rhat_tail = MCMCDiagnosticTools.rhat_tail(x)
-    rhat = max.(rhat_bulk, rhat_tail)
-    return (; ess, rhat)
-end
