@@ -13,12 +13,16 @@ begin
         DynamicHMC,
         JSON3,
         LogDensityProblems,
+        Logging,
         PathfinderBenchmarks,
         PosteriorDB,
         ProgressLogging,
         Random,
         StanLogDensityProblems,
-        Statistics
+        Statistics,
+        TerminalLoggers
+
+    Logging.global_logger(TerminalLogger(; right_justify=120))
 end
 
 # ╔═╡ aab0b1fd-af1b-4af8-af27-a15c03a45353
@@ -41,11 +45,15 @@ posterior_seeds = [
     "arma-arma11" => 50872,
     "eight_schools-eight_schools_centered" => 33701,
     "diamonds-diamonds" => 18730,
+    "mcycle_gp-accel_gp" => 39292,
 ];
 
 # ╔═╡ 747bb969-a960-4b6e-bace-2062e4d0b2a7
 target_ndraws = let
     @progress for (name, seed) in posterior_seeds
+        isdir(name) || mkdir(name)
+        config_file = joinpath(name, out_file)
+        isfile(config_file) && continue
         rng = Random.seed!(seed)
         path = name
         post = posterior(pdb, path)
@@ -58,7 +66,8 @@ target_ndraws = let
         nruns_finished = 0
         ProgressLogging.progress() do id
             while nruns_finished < nruns
-                @info "starting" progress = (nruns_finished + 1) / nruns _id = id
+                Base.@logmsg ProgressLogging.ProgressLevel "running" progress =
+                    (nruns_finished + 1) / nruns _id = id
                 warmup_stages = default_warmup_stages(;
                     stepsize_adaptation=DualAveraging(; δ)
                 )
@@ -101,8 +110,7 @@ target_ndraws = let
             "delta" => δ,
         )
         @info "chosen config for $name: $config"
-        isdir(name) || mkdir(name)
-        open(joinpath(name, out_file), "w") do io
+        open(config_file, "w") do io
             JSON3.write(io, config)
         end
     end
