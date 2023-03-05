@@ -49,7 +49,7 @@ function all_pathfinder_configurations(n::Int)
                 m=Pathfinder.DEFAULT_HISTORY_LENGTH,
             ),
         ),
-        "pathfinder_metric_inithagerzhangls_gilbertinit" => PathfinderConfig(;
+        "inithagerzhangls_gilbertinit" => PathfinderConfig(;
             optimizer=LBFGS(;
                 alphaguess=LineSearches.InitialHagerZhang(),
                 linesearch=LineSearches.MoreThuente(),
@@ -57,14 +57,14 @@ function all_pathfinder_configurations(n::Int)
                 init_invH0=init_invH0_gilbert!,
             ),
         ),
-        "pathfinder_metric_gilbertinit" => PathfinderConfig(;
+        "gilbertinit" => PathfinderConfig(;
             optimizer=LBFGS(;
                 linesearch=LineSearches.MoreThuente(),
                 m=Pathfinder.DEFAULT_HISTORY_LENGTH,
                 init_invH0=init_invH0_gilbert!,
             ),
         ),
-        "pathfinder_metric_initstaticscaled_gilbertinit" => PathfinderConfig(;
+        "initstaticscaled_gilbertinit" => PathfinderConfig(;
             optimizer=LBFGS(;
                 alphaguess=LineSearches.InitialStatic(; scaled=true),
                 linesearch=LineSearches.MoreThuente(),
@@ -72,9 +72,9 @@ function all_pathfinder_configurations(n::Int)
                 init_invH0=init_invH0_gilbert!,
             ),
         ),
-        "pathfinder_metric_nloptlbfgs" =>
+        "nloptlbfgs" =>
             PathfinderConfig(; optimizer=NLopt.Opt(:LD_LBFGS, n)),
-        "pathfinder_metric_backtrackingls" => PathfinderConfig(;
+        "backtrackingls" => PathfinderConfig(;
             optimizer=Optim.LBFGS(;
                 linesearch=LineSearches.BackTracking(),
                 m=Pathfinder.DEFAULT_HISTORY_LENGTH,
