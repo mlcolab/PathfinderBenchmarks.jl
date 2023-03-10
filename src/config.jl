@@ -72,8 +72,7 @@ function all_pathfinder_configurations(n::Int)
                 init_invH0=init_invH0_gilbert!,
             ),
         ),
-        "nloptlbfgs" =>
-            PathfinderConfig(; optimizer=NLopt.Opt(:LD_LBFGS, n)),
+        "nloptlbfgs" => PathfinderConfig(; optimizer=NLopt.Opt(:LD_LBFGS, n)),
         "backtrackingls" => PathfinderConfig(;
             optimizer=Optim.LBFGS(;
                 linesearch=LineSearches.BackTracking(),

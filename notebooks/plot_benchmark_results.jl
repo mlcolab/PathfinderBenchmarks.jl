@@ -74,43 +74,41 @@ model_name(posterior_name) = split(string(posterior_name), '-')[2];
 
 # ╔═╡ 6ea607cd-6285-449d-a719-cb708ba5a100
 let
-	pf_benchmark_parts = map(x -> split(x, '_'), pf_benchmarks)
-	ls = map(pf_benchmark_parts) do x
-		i = findfirst(∈(("hagerzhangls", "backtrackingls")), x)
-		i === nothing && return "morethuente"
-		return first(split(x[i], "ls"))
-	end
-	lsinit = map(pf_benchmark_parts) do x
-		i = findfirst(∈(("initstaticscaled", "inithagerzhangls")), x)
-		i === nothing && return "static"
-		return first(split(last(split(x[i], "init")), "ls"))
-	end
-	invH0init = map(pf_benchmark_parts) do x
-		return "gilbertinit" ∈ x ? "gilbert" : "nocedalwright"
-	end
-	benchmark_dim = Dim{:benchmark}(pf_benchmarks)
-	ds_benchmark = Dataset((;
-		linesearch = DimArray(ls, benchmark_dim),
-		linesearch_init = DimArray(lsinit, benchmark_dim),
-		invH0_init = DimArray(invH0init, benchmark_dim),
-	))
-	ds = merge(
-		hess_diagnostics, ds_benchmark
-	)
+    pf_benchmark_parts = map(x -> split(x, '_'), pf_benchmarks)
+    ls = map(pf_benchmark_parts) do x
+        i = findfirst(∈(("hagerzhangls", "backtrackingls")), x)
+        i === nothing && return "morethuente"
+        return first(split(x[i], "ls"))
+    end
+    lsinit = map(pf_benchmark_parts) do x
+        i = findfirst(∈(("initstaticscaled", "inithagerzhangls")), x)
+        i === nothing && return "static"
+        return first(split(last(split(x[i], "init")), "ls"))
+    end
+    invH0init = map(pf_benchmark_parts) do x
+        return "gilbertinit" ∈ x ? "gilbert" : "nocedalwright"
+    end
+    benchmark_dim = Dim{:benchmark}(pf_benchmarks)
+    ds_benchmark = Dataset((;
+        linesearch=DimArray(ls, benchmark_dim),
+        linesearch_init=DimArray(lsinit, benchmark_dim),
+        invH0_init=DimArray(invH0init, benchmark_dim),
+    ))
+    ds = merge(hess_diagnostics, ds_benchmark)
     fig = draw(
-        ((
-			data(ds[(:cond_pathfinder, :linesearch, :linesearch_init, :invH0_init,)]) *
-         	mapping(:cond_pathfinder; color=:benchmark, col=:cond)
-		) + (
-			data(ds.cond_Σref) *
-         	mapping(:cond_Σref; col=:cond)
-		) * visual(; color=:black, linestyle=:dash)
-		# (
-		# 	data(hess_diagnostics.cond_ref) *
-  #        	mapping(:cond_ref; col=:cond)
-		# ) * visual(; color=:gray, linestyle=:dash)
-		) * visual(ECDFPlot);
-         axis=merge(axis_ecdf, (; xscale=log10)),
+        (
+            (
+                data(ds[(:cond_pathfinder, :linesearch, :linesearch_init, :invH0_init)]) *
+                mapping(:cond_pathfinder; color=:benchmark, col=:cond)
+            ) +
+            (data(ds.cond_Σref) * mapping(:cond_Σref; col=:cond)) *
+            visual(; color=:black, linestyle=:dash)
+            # (
+            # 	data(hess_diagnostics.cond_ref) *
+            #        	mapping(:cond_ref; col=:cond)
+            # ) * visual(; color=:gray, linestyle=:dash)
+        ) * visual(ECDFPlot);
+        axis=merge(axis_ecdf, (; xscale=log10)),
     )
     # xlims!(; low=1, high=10^3)
     fig
@@ -175,7 +173,9 @@ let fig = Figure(; resolution=(900, 800))
             benchmark=At(hmc_benchmarks_defaults),
         )
         layers =
-            data(performance) * mapping(:performance; color=:benchmark) * visual(ECDFPlot; alpha=0.9)
+            data(performance) *
+            mapping(:performance; color=:benchmark) *
+            visual(ECDFPlot; alpha=0.9)
         lin = draw!(ax, layers)
         name ∈ keys(xlims) && xlims!(ax, xlims[name]...)
         ylims!(ax, -0.01, 1.01)
@@ -238,7 +238,9 @@ let fig = Figure(; resolution=(900, 820))
             benchmark=At(hmc_benchmarks_variants),
         )
         layers =
-            data(performance) * mapping(:performance; color=:benchmark) * visual(ECDFPlot; alpha=0.9)
+            data(performance) *
+            mapping(:performance; color=:benchmark) *
+            visual(ECDFPlot; alpha=0.9)
         lin = draw!(ax, layers)
         name ∈ keys(xlims) && xlims!(ax, xlims[name]...)
         ylims!(ax, -0.01, 1.01)
@@ -322,16 +324,32 @@ let fig = Figure()
             "inithagerzhangls_hagerzhangls"
         )]
     end
-	all_data = sum(keys(num_bfgs_updates_rejected)) do k
-		data(cat(num_bfgs_updates_rejected[k]; dims=Dim{:model}([model_name(k)])))
-	end
-	fig = Figure(; resolution=(700, 450))
-	ax = Axis(fig[1, 1]; xlabel="number of L-BFGS updates rejected", ylabel="probability")
+    all_data = sum(keys(num_bfgs_updates_rejected)) do k
+        data(cat(num_bfgs_updates_rejected[k]; dims=Dim{:model}([model_name(k)])))
+    end
+    fig = Figure(; resolution=(700, 450))
+    ax = Axis(fig[1, 1]; xlabel="number of L-BFGS updates rejected", ylabel="probability")
 
-	grid = draw!(ax, all_data * mapping(:num_bfgs_updates_rejected => "number of L-BFGS updates rejected"; color=:model) * visual(ECDFPlot; alpha=0.9))
-	AlgebraOfGraphics.legend!(fig[1, 1], grid; tellwidth=false, tellheight=false, valign=:bottom, halign=:right, padding=(0, 0, 20, 0), titlesize=0)
-	xlims!(-5, 202)
-	ylims!(-0.01, 1.01)
+    grid = draw!(
+        ax,
+        all_data *
+        mapping(
+            :num_bfgs_updates_rejected => "number of L-BFGS updates rejected"; color=:model
+        ) *
+        visual(ECDFPlot; alpha=0.9),
+    )
+    AlgebraOfGraphics.legend!(
+        fig[1, 1],
+        grid;
+        tellwidth=false,
+        tellheight=false,
+        valign=:bottom,
+        halign=:right,
+        padding=(0, 0, 20, 0),
+        titlesize=0,
+    )
+    xlims!(-5, 202)
+    ylims!(-0.01, 1.01)
     Makie.save("num_bfgs_updates_rejected.pdf", fig)
     fig
 end
