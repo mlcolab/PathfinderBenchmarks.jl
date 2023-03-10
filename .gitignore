@@ -1,4 +1,5 @@
 *.hpp
 *.so
 *.nc
+*.jld2
 *.stan

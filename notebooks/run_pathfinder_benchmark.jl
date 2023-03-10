@@ -9,25 +9,17 @@ begin
     using Pkg
     Pkg.activate("..")
     using Revise
-    using BridgeStan,
-        DynamicHMC,
-        InferenceObjectsNetCDF,
-        JSON3,
-        LinearAlgebra,
+    using JLD2,
         LogDensityProblems,
         Logging,
-        Optim,
-        OptimizationNLopt,
         Pathfinder,
         PathfinderBenchmarks,
         PosteriorDB,
         ProgressLogging,
         Random,
         StanLogDensityProblems,
-        Statistics,
         TerminalLoggers,
         Transducers
-    using Optim.LineSearches
 
     Logging.global_logger(TerminalLogger(; right_justify=120))
 end
@@ -47,6 +39,7 @@ end
 # ╔═╡ 87f31447-bf3c-4f7f-9ef1-1b2851ab00f0
 @progress name = "posterior" for (posterior_name, config) in posterior_configs
     (; nruns, seed) = config
+    nchains = 4
     path = posterior_name
     isdir(path) || mkpath(path)
     post = PosteriorDB.posterior(pdb, posterior_name)
@@ -54,36 +47,28 @@ end
         post, path; force=true, nan_on_error=true, make_args=["STAN_THREADS=true"]
     )
     dim = LogDensityProblems.dimension(prob)
-    hmc_config = open(JSON3.read, joinpath(path, "hmc_config.json"))
-    ndraws = hmc_config["ndraws"]
-    nchains = hmc_config["nchains"]
-    δ = hmc_config["delta"]
-
     rng = Random.seed!(seed)
     run_seeds = rand(rng, UInt16, nruns)
     run_inits = rand(rng, dim, nchains, nruns) .* 4 .- 2
-    @progress name = posterior_name for (benchmark_name, warmup_stages) in
-                                        all_warmup_stages(dim, δ)
-        benchmark_name == "pathfinder_metric_diag_init" && continue
-        benchmark_path = joinpath(path, "results_$benchmark_name")
-        benchmark_file = joinpath(benchmark_path, "results.nc")
+    @progress name = posterior_name for (benchmark_name, pathfinder_config) in
+                                        all_pathfinder_configurations(dim)
+        benchmark_path = joinpath(path, "diagnostic_$benchmark_name")
+        benchmark_file = joinpath(benchmark_path, "results.jld2")
         isfile(benchmark_file) && continue
         isdir(benchmark_path) || mkpath(benchmark_path)
         run_files = String[]
         @progress name = benchmark_name for i in 1:nruns
-            run_file = joinpath(benchmark_path, "run.$i.nc")
+            run_file = joinpath(benchmark_path, "run.$i.jld2")
             push!(run_files, run_file)
             isfile(run_file) && continue
-            initializations = [(; q=run_inits[:, j, i]) for j in axes(run_inits, 2)]
+            init = [run_inits[:, j, i] for j in axes(run_inits, 2)]
             Random.seed!(rng, run_seeds[i])
-            idata = sample_dynamichmc(
-                prob, ndraws, nchains; rng, initializations, warmup_stages
-            )
-            to_netcdf(idata, run_file)
+            result = multipathfinder(prob, 100; rng, init, pathfinder_config.options...)
+            jldsave(run_file; result)
         end
         @info "combining runs"
-        idata_merged = cat(map(from_netcdf, run_files)...; dims=:run)
-        to_netcdf(idata_merged, benchmark_file)
+        results = map(f -> jldopen(f)["result"], run_files)
+        jldsave(benchmark_file; results)
     end
 end
 
