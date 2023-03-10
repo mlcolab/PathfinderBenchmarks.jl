@@ -6,6 +6,8 @@ using InteractiveUtils
 
 # ╔═╡ d75efdac-bdf4-11ed-1280-fdaceb1a5bd5
 begin
+    cd(@__DIR__)
+
     using Pkg
     Pkg.activate("..")
     using Revise

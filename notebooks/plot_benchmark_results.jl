@@ -6,6 +6,8 @@ using InteractiveUtils
 
 # ╔═╡ a791fbea-a7e4-11ed-0c1e-0f45961d3d26
 begin
+    cd(@__DIR__)
+
     using Pkg
     Pkg.activate("..")
     using Revise
@@ -325,7 +327,7 @@ let fig = Figure()
 	end
 	fig = Figure(; resolution=(700, 450))
 	ax = Axis(fig[1, 1]; xlabel="number of L-BFGS updates rejected", ylabel="probability")
-	
+
 	grid = draw!(ax, all_data * mapping(:num_bfgs_updates_rejected => "number of L-BFGS updates rejected"; color=:model) * visual(ECDFPlot; alpha=0.9))
 	AlgebraOfGraphics.legend!(fig[1, 1], grid; tellwidth=false, tellheight=false, valign=:bottom, halign=:right, padding=(0, 0, 20, 0), titlesize=0)
 	xlims!(-5, 202)
