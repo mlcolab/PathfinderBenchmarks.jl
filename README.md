@@ -18,5 +18,5 @@ julia notebooks/run_hmc_benchmark.jl
 julia notebooks/run_pathfinder_benchmark.jl
 julia notebooks/summarize_benchmark_results.jl
 julia notebooks/plot_benchmark_results.jl
-julia notebookes/plot_illustrations.jl
+julia notebooks/plot_illustrations.jl
 ```
