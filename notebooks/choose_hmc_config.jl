@@ -38,7 +38,7 @@ begin
 end;
 
 # ╔═╡ 6ee67094-215b-491e-bb8a-bcd3ef12b9c6
-pdb = database()
+pdb = PosteriorDB.database()
 
 # ╔═╡ 7746714a-d1f6-46d3-8383-d2fdfa2389ce
 posterior_seeds = [
@@ -56,7 +56,7 @@ target_ndraws = let
         isfile(config_file) && continue
         rng = Random.seed!(seed)
         path = name
-        post = posterior(pdb, path)
+        post = PosteriorDB.posterior(pdb, path)
         prob = StanProblem(
             post, name; nan_on_error=true, force=true, make_args=["STAN_THREADS=true"]
         )
