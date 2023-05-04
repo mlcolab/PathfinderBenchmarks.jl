@@ -34,7 +34,7 @@ Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
 
 [compat]
 AlgebraOfGraphics = "0.6"
-BridgeStan = "1"
+BridgeStan = "1, 2"
 CairoMakie = "0.10"
 DataFrames = "1"
 DimensionalData = "0.24"
